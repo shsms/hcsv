@@ -43,6 +43,10 @@ NR>1 {
             break
         case "send":
             if(substr($fieldIdx[ii],1+length($fieldIdx[ii])-length(vals[ii]),length(vals[ii])) != vals[ii]) passthru *= 0
+            break
+        default:
+            printf("Unknown operator - %s\n", ops[ii])
+            exit 1
         }
     }
     if(passthru==1)
