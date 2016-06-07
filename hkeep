@@ -1,0 +1,50 @@
+#!/bin/bash
+
+awk -F , '
+BEGIN {
+    split("'"$*"'",args," ");
+    for (ii=1; ii <= length(args); ii++) {
+        split(args[ii],items,".");
+        if(length(items) != 3) {
+            printf("Bad check - %s\n", args[ii])
+            exit 1
+        }
+        fields[ii]=items[1]
+        ops[ii]=items[2]
+        vals[ii]=items[3]
+    }
+}
+NR==1 {
+    for (ii=1; ii <= length(fields); ii++) {
+        for (jj=1; jj <= NF; jj++) {
+            if (fields[ii] == $jj) {
+                fieldIdx[ii] = jj
+            }
+        }
+        if (length(fieldIdx) != ii) {
+            printf("Field not found - %s\n", fields[ii])
+            exit 1
+        }
+    }
+    print
+}
+NR>1 {
+    passthru=1
+    for(ii = 1; ii <= length(fieldIdx); ii++) {
+        switch(ops[ii]) {
+        case "seq":
+            if($fieldIdx[ii] != vals[ii]) passthru *= 0
+            break
+        case "sne":
+            if($fieldIdx[ii] == vals[ii]) passthru *= 0
+            break
+        case "sbeg":
+            if(substr($fieldIdx[ii],1,length(vals[ii])) != vals[ii]) passthru *= 0
+            break
+        case "send":
+            if(substr($fieldIdx[ii],1+length($fieldIdx[ii])-length(vals[ii]),length(vals[ii])) != vals[ii]) passthru *= 0
+        }
+    }
+    if(passthru==1)
+        print
+}'
