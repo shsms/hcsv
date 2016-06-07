@@ -1,0 +1,17 @@
+#!/bin/bash
+
+awk -F , 'BEGIN { split("'"$*"'",cols," "); colId=1; } 
+      NR==1 {
+               for (c=1; c<=length(cols); c++) {
+                   for (ii=1; ii<=NF;ii++){
+                       if($ii == cols[c]) {
+                           outCols[colId++]=ii;}}}
+               outColCount=length(outCols)
+            }
+            {
+               for (c=1; c<=outColCount; c++)
+                   if(c==1) printf("%s",$outCols[c])
+                   else printf(",%s",$outCols[c])
+               printf("\n")
+            }'
+              
