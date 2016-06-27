@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# usage:  hcase col1=upper col2=lower
+
+awk -F , '
+BEGIN {
+    split("'"$*"'",args," ");
+    for (ii=1; ii <= length(args); ii++) {
+        split(args[ii],items,"=");
+        if(length(items) != 2) {
+            printf("Bad check - %s\n", args[ii])
+            exit 1
+        }
+        fields[ii]=items[1]
+        tocase[ii]=items[2]
+    }
+}
+NR==1 {
+    for (ii=1; ii <= length(fields); ii++) {
+        for (jj=1; jj <= NF; jj++) {
+            if (fields[ii] == $jj) {
+                fieldIdx[ii] = jj
+            }
+        }
+        if (length(fieldIdx) != ii) {
+            printf("Field not found - %s\n", fields[ii])
+            exit 1
+        }
+    }
+    print
+}
+NR>1 {
+    for (c=1; c<=NF; c++) {
+        for (d=1; d<= length(fields); d++) {
+            if (c == fieldIdx[d])
+                if (tocase[d] == "upper")
+                    $c = toupper($c)
+                else if (tocase[d] == "lower")
+                    $c = tolower($c)
+        }
+        if(c==1) printf("%s",$c)
+        else printf(",%s",$c)
+    }
+    printf("\n")
+}
+'
