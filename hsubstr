@@ -3,7 +3,7 @@
 # Like substr, takes start pos and end pos per field.
 # if endpos is negative,  it is counted from the end.
 
-#Usage : cat csvfile | htrim F1=:5 F2=:-1 F3=2: F4=2:3
+#Usage : cat csvfile | hsubstr F1=:5 F2=:-1 F3=2: F4=2:3
 
 awk -F , '
 BEGIN {
