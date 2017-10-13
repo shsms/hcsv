@@ -1,17 +1,61 @@
 #!/bin/bash
 
-awk -F , 'BEGIN { split("'"$*"'",cols," "); colId=1; } 
+awk -F , 'BEGIN {
+               split("'"$*"'",colsspace," ");
+               optPos = 1;
+               startctr = 1;
+               invertMatch=0;
+               for (ii=1; ii<length(colsspace); ii++) {
+                   if (colsspace[ii] == "-v") {
+                       invertMatch=1;
+                   } else {
+                       break;
+                   }
+                   startctr++;
+               }
+               colctr=1;
+               for (ii=startctr; ii<=length(colsspace); ii++) {
+                   split(colsspace[ii], colscomma, ",");
+                   for(jj=1; jj<=length(colscomma); jj++) {
+                       cols[colctr++] = colscomma[jj];
+                   }
+               }
+      }
       NR==1 {
+               colId=1;
                for (c=1; c<=length(cols); c++) {
                    for (ii=1; ii<=NF;ii++){
                        if($ii == cols[c]) {
-                           outCols[colId++]=ii;}}}
-               outColCount=length(outCols)
+                           outColsN[colId++]=ii;
+                           break;
+                       }
+                   }
+                   if (length(outColsN) != c && cols[c] != "") {
+                       printf("Column not found: %s\n",cols[c])
+                       exit 1;
+                   }
+               }
+               if (invertMatch == 0) {
+                   for (ii=1;ii<=length(outColsN); ii++) {
+                       outCols[ii]=outColsN[ii];
+                   }
+                   outColCount=ii-1
+               } else {
+                   colctr=1;
+                   for (ii=1; ii<=NF;ii++) {
+                       found=0;
+                       for(jj=1;jj<=length(cols);jj++) {
+                           if ($ii == cols[jj]) { found=1; }
+                       }
+                       if (found==0) outCols[colctr++]=ii;
+                   }
+                   outColCount=colctr-1
+               }
             }
             {
-               for (c=1; c<=outColCount; c++)
-                   if(c==1) printf("%s",$outCols[c])
-                   else printf(",%s",$outCols[c])
-               printf("\n")
+                   for (c=1; c<=outColCount; c++) 
+                       if(c==1) printf("%s",$outCols[c])
+                       else printf(",%s",$outCols[c])
+                   printf("\n")
             }'
               
