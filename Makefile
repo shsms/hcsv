@@ -1,6 +1,10 @@
 OBJS	+= hcol
 OBJS	+= hgrep
 OBJS	+= hkeep
+OBJS	+= hcase
+OBJS	+= hcat
+OBJS	+= hsubstr
+
 
 DEST = ~/bin/
 
