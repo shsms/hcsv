@@ -1,17 +1,40 @@
 #!/bin/bash
 
+ctr=1
+argStr=
+for ii in "$@"; do
+    argStr=$argStr"args[$ctr]=\"$ii\"\n";
+    ctr=$((ctr+1))
+done
+
 awk -F , '
-BEGIN {
-    split("'"$*"'",args," ");
+function findMatch(prevmatch, matcher, oper) {
+  if (oper == "a") return (prevmatch * matcher)
+  if (oper == "o") return (prevmatch + matcher)
+}
+BEGIN {'"$(echo -e $argStr)"'
+    optPos = 1;
+    startctr = 1;
+    inv=0
+    op="a"
     for (ii=1; ii <= length(args); ii++) {
+    	if (args[ii] == "-v") inv=1
+        else if (args[ii] == "-o") op="o"
+        else if (args[ii] == "-a") op="a"
+        else break
+        startctr++
+    }
+    colctr=1;
+    for (ii=startctr; ii <= length(args); ii++) {
         split(args[ii],items,".");
         if(length(items) != 3) {
             printf("Bad check - %s\n", args[ii])
             exit 1
         }
-        fields[ii]=items[1]
-        ops[ii]=items[2]
-        vals[ii]=items[3]
+        fields[colctr]=items[1]
+        ops[colctr]=items[2]
+        vals[colctr]=items[3]
+	colctr++
     }
 }
 NR==1 {
@@ -29,26 +52,35 @@ NR==1 {
     print
 }
 NR>1 {
-    passthru=1
+    currmatch=1
+    if (op == "o") 
+        currmatch=0
     for(ii = 1; ii <= length(fieldIdx); ii++) {
+        opval=1
         switch(ops[ii]) {
         case "seq":
-            if($fieldIdx[ii] != vals[ii]) passthru *= 0
+            if($fieldIdx[ii] != vals[ii]) opval=0
+	    currmatch=findMatch(currmatch,opval,op)
             break
         case "sne":
-            if($fieldIdx[ii] == vals[ii]) passthru *= 0
+            if($fieldIdx[ii] == vals[ii]) opval=0
+            currmatch=findMatch(currmatch,opval,op)
             break
         case "sbeg":
-            if(substr($fieldIdx[ii],1,length(vals[ii])) != vals[ii]) passthru *= 0
+            if(substr($fieldIdx[ii],1,length(vals[ii])) != vals[ii]) opval=0
+            currmatch=findMatch(currmatch,opval,op)
             break
         case "send":
-            if(substr($fieldIdx[ii],1+length($fieldIdx[ii])-length(vals[ii]),length(vals[ii])) != vals[ii]) passthru *= 0
+            if(substr($fieldIdx[ii],1+length($fieldIdx[ii])-length(vals[ii]),length(vals[ii])) != vals[ii]) opval=0
+	    currmatch=findMatch(currmatch,opval,op)
             break
         default:
             printf("Unknown operator - %s\n", ops[ii])
             exit 1
         }
     }
-    if(passthru==1)
+    if((inv==0 && currmatch>0))
+        print
+    else if (inv==1 && currmatch==0)
         print
 }'
