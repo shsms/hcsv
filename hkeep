@@ -58,11 +58,29 @@ NR>1 {
     for(ii = 1; ii <= length(fieldIdx); ii++) {
         opval=1
         switch(ops[ii]) {
+	case "gt":
+	    if($fieldIdx[ii] <= vals[ii]) opval=0
+	    currmatch=findMatch(currmatch,opval,op)
+	    break
+	case "lt":
+	    if($fieldIdx[ii] >= vals[ii]) opval=0
+	    currmatch=findMatch(currmatch,opval,op)
+	    break
+	case "gte":
+	    if($fieldIdx[ii] < vals[ii]) opval=0
+	    currmatch=findMatch(currmatch,opval,op)
+	    break
+	case "lte":
+	    if($fieldIdx[ii] > vals[ii]) opval=0
+	    currmatch=findMatch(currmatch,opval,op)
+	    break
         case "seq":
+	case "eq":
             if($fieldIdx[ii] != vals[ii]) opval=0
 	    currmatch=findMatch(currmatch,opval,op)
             break
         case "sne":
+	case "ne":
             if($fieldIdx[ii] == vals[ii]) opval=0
             currmatch=findMatch(currmatch,opval,op)
             break

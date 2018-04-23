@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# hsort colname[=g] colname=n colname=hr colname=M ...
+
+awk -F , 'BEGIN {
+               split("'"$*"'",colsspace," ");
+               optPos = 1;
+               startctr = 1;
+               invertMatch=0;
+               for (ii=1; ii<length(colsspace); ii++) {
+                   if (colsspace[ii] == "-v") {
+                       invertMatch=1;
+                   } else {
+                       break;
+                   }
+                   startctr++;
+               }
+               colctr=1;
+               for (ii=startctr; ii<=length(colsspace); ii++) {
+                   split(colsspace[ii], colscomma, ",");
+                   for(jj=1; jj<=length(colscomma); jj++) {
+                       colparams[colctr++] = colscomma[jj];
+                   }
+               }
+	       colctr=1;
+	       for (ii=1; ii<=length(colparams); ii++) {
+	       	   split(colparams[ii], coldata, "=")
+		   cols[colctr] = coldata[1];
+		   if (coldata[2] == "") {
+		       coltype[colctr] = "g";
+		   } else {
+		       coltype[colctr] = coldata[2];
+		   }
+		   colctr++;
+               }
+      }
+      NR==1 {
+               colId=1;
+	       sortCmd="sort -t , -b";
+               for (c=1; c<=length(cols); c++) {
+                   for (ii=1; ii<=NF;ii++){
+                       if($ii == cols[c]) {
+                           colIds[colId++]=ii;
+			   sortCmd = sortCmd sprintf(" -k %d,%d%s", ii,ii,coltype[c])
+                           break;
+                       }
+                   }
+                   if (length(colIds) != c && cols[c] != "") {
+                       printf("Column not found: %s\n",cols[c])
+                       exit 1;
+                   }
+               }
+	       print
+      }
+      NR>1 {
+               print | sortCmd
+      }
+'
