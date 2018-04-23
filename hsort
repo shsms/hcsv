@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# hsort colname[=g] colname=n colname=hr colname=M ...
+# hsort colname colname=n colname=hr colname=M ...
 
 awk -F , 'BEGIN {
                split("'"$*"'",colsspace," ");
@@ -27,7 +27,7 @@ awk -F , 'BEGIN {
 	       	   split(colparams[ii], coldata, "=")
 		   cols[colctr] = coldata[1];
 		   if (coldata[2] == "") {
-		       coltype[colctr] = "g";
+		       coltype[colctr] = "";
 		   } else {
 		       coltype[colctr] = coldata[2];
 		   }
