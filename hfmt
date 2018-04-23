@@ -1,0 +1,23 @@
+#!/bin/bash
+
+pipe=$(mktemp)
+rm $pipe
+mkfifo $pipe
+
+tee >(awk -F , '
+NR == 1 {
+    columnCmd="column -s , -t -R"
+    for (ii=1; ii<=NF; ii++) {
+        if (ii == 1) {
+	        columnCmd = columnCmd sprintf(" %d", ii)
+	} else {
+	        columnCmd = columnCmd sprintf(",%d", ii)
+	}
+    }
+    columnCmd = columnCmd rightFields
+    print columnCmd
+    exit
+}
+' >$pipe) > >(read line <$pipe; $line)
+
+rm $pipe

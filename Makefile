@@ -2,6 +2,7 @@ OBJS	+= hcase
 OBJS	+= hcat
 OBJS	+= hcol
 OBJS	+= hcomma
+OBJS	+= hfmt
 OBJS	+= hgrep
 OBJS	+= hkeep
 OBJS	+= hsort
