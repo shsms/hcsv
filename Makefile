@@ -1,3 +1,4 @@
+OBJS	+= hhdr
 OBJS	+= hcase
 OBJS	+= hcat
 OBJS	+= hcol
