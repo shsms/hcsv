@@ -36,7 +36,7 @@ awk -F , 'BEGIN {
       }
       NR==1 {
                colId=1;
-	       sortCmd="sort -t , -b";
+	       sortCmd="sort -s -t , -b";
                for (c=1; c<=length(cols); c++) {
                    for (ii=1; ii<=NF;ii++){
                        if($ii == cols[c]) {
