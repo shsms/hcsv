@@ -4,7 +4,7 @@ pipe=$(mktemp)
 rm $pipe
 mkfifo $pipe
 
-tee --output-error warn >(awk -F , '
+tee --output-error=warn >(awk -F , '
 NR == 1 {
     columnCmd="column -s , -t -R"
     for (ii=1; ii<=NF; ii++) {
